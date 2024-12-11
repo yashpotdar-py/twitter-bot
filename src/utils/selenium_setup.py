@@ -1,4 +1,13 @@
 # src\utils\selenium_setup.py
+"""
+Sets up a Selenium Chrome driver with the specified options.
+
+Args:
+    headless (bool): If True, the Chrome browser will run in headless mode (without a GUI).
+
+Returns:
+    webdriver.Chrome: A Selenium Chrome driver instance with the specified options.
+"""
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
