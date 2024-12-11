@@ -1,5 +1,6 @@
 # src/utils/helpers.py
-"""Retrieves the value of an environment variable.
+"""
+Utility to retrieve the value of an environment variable.
 
 Args:
     var_name (str): The name of the environment variable to retrieve.
@@ -13,6 +14,7 @@ Raises:
 from dotenv import load_dotenv
 import os
 
+# Load environment variables from a .env file
 load_dotenv()
 
 
@@ -25,6 +27,7 @@ def get_env_var(var_name):
 
 
 if __name__ == "__main__":
+    # Print out all required environment variables for testing purposes
     print(f"""
 CONSUMER_KEY = {get_env_var("CONSUMER_KEY")};
 CONSUMER_SECRET = {get_env_var("CONSUMER_SECRET")};
