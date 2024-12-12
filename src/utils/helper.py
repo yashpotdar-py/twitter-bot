@@ -1,36 +1,53 @@
-# src/utils/helpers.py
 """
-Utility to retrieve the value of an environment variable.
+Helper module for managing environment variables and logging functionality.
 
-Args:
-    var_name (str): The name of the environment variable to retrieve.
+This module provides utilities for loading and retrieving environment variables
+while maintaining detailed logging of all operations. It uses python-dotenv for
+environment variable management and the built-in logging module for tracking
+operations.
 
-Returns:
-    str: The value of the environment variable.
-
-Raises:
-    ValueError: If the environment variable is not found.
+Functions:
+    get_env_var(var_name): Retrieves the value of a specified environment variable.
 """
-from dotenv import load_dotenv
+
 import os
+import logging
+from dotenv import load_dotenv
 
-# Load environment variables from a .env file
+# Set up logging for utility-related actions
+helper_logger = logging.getLogger("helper")
+helper_logger.setLevel(logging.INFO)
+handler = logging.FileHandler("logs/app.log")
+handler.setFormatter(logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+helper_logger.addHandler(handler)
+
+# Load environment variables
 load_dotenv()
 
 
 def get_env_var(var_name):
-    """Retrieve an environment variable."""
+    """
+    Retrieve an environment variable.
+
+    Args:
+        var_name (str): The name of the environment variable to retrieve.
+
+    Returns:
+        str: The value of the environment variable.
+
+    Raises:
+        ValueError: If the environment variable is not found.
+
+    Example:
+        >>> api_key = get_env_var('API_KEY')
+    """
+    helper_logger.info(
+        f"Attempting to retrieve environment variable: {var_name}")
     value = os.getenv(var_name)
     if value is None:
+        helper_logger.error(f"Environment variable {var_name} not found.")
         raise ValueError(f"Environment variable {var_name} not found.")
+    helper_logger.info(
+        f"Environment variable {var_name} retrieved successfully.")
     return value
-
-
-if __name__ == "__main__":
-    # Print out all required environment variables for testing purposes
-    print(f"""
-CONSUMER_KEY = {get_env_var("CONSUMER_KEY")};
-CONSUMER_SECRET = {get_env_var("CONSUMER_SECRET")};
-ACCESS_TOKEN = {get_env_var("ACCESS_TOKEN")};
-ACCESS_TOKEN_SECRET = {get_env_var("ACCESS_TOKEN_SECRET")};
-""")
