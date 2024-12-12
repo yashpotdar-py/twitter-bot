@@ -1,0 +1,4 @@
+selenium
+requests
+requests_oauthlib
+python-dotenv
