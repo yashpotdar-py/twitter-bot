@@ -9,7 +9,7 @@ def main():
         consumer_key = get_env_var("CONSUMER_KEY")
         consumer_secret = get_env_var("CONSUMER_SECRET")
 
-        tweet_text = "This is a test tweet!"
+        tweet_text = "Hello World! Pixel_Pancake69 here"
 
         response = post_tweet(
             access_token,
