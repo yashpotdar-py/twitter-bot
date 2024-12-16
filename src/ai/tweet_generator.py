@@ -1,5 +1,37 @@
-import json
+"""
+Tweet Generator Module
+
+This module provides functionality for generating gaming-related tweets using Google's
+Generative AI. It maintains personality consistency and avoids duplicate content through
+similarity checking.
+
+The TweetGenerator class handles:
+- Loading and managing AI personality traits
+- Tweet storage and retrieval
+- Content similarity analysis
+- Integration with Google's AI API
+- Gaming topic categorization and examples
+
+Key Features:
+- Customizable tweet length limits
+- Similarity threshold for duplicate detection
+- Persistent storage of generated tweets
+- Rich gaming category classification
+- Color-coded console output
+
+Dependencies:
+- google.generativeai: For AI text generation
+- sklearn: For text similarity analysis
+- colorama: For console text formatting
+- dotenv: For environment variable management
+
+Example Usage:
+    generator = TweetGenerator()
+    tweet = generator.generate_tweet(topic="indie games")
+"""
+
 import os
+import json
 from typing import Dict, List, Optional
 from datetime import datetime
 from dotenv import load_dotenv
@@ -12,7 +44,7 @@ init()
 try:
     import google.generativeai as genai
 except ImportError:
-    print(f"{Fore.RED}Error: google-generativeai package is not installed. Please install it using:")
+    print(f"{Fore.RED}Error: google-generativeai package is not installed. Please install it:")
     print("pip install google-generativeai{Style.RESET_ALL}")
     raise
 
@@ -25,12 +57,14 @@ class TweetGenerator:
                  tweet_storage_filepath: str = 'src/ai/tweets.json',
                  max_tweet_length: int = 280,
                  similarity_threshold: float = 0.9):
+        print(f"{Fore.CYAN}Initializing TweetGenerator...{Style.RESET_ALL}")
         self.personality = self.load_personality(personality_filepath)
         self.tweet_storage_filepath = tweet_storage_filepath
         self.max_tweet_length = max_tweet_length
         self.similarity_threshold = similarity_threshold
         self.configure_api()
         self.tweet_storage = self.load_tweet_storage()
+        print(f"{Fore.GREEN}TweetGenerator initialized successfully{Style.RESET_ALL}")
         self.game_types = {
             "indie games": ["Stardew Valley", "Hollow Knight", "Undertale", "Hades", "Celeste"],
             "game development": ["Unity", "Unreal Engine", "Godot"],
@@ -61,19 +95,25 @@ class TweetGenerator:
         }
 
     def load_personality(self, filepath: str) -> Dict:
+        print(f"{Fore.BLUE}Loading personality from {filepath}...{Style.RESET_ALL}")
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 personality = json.load(f)
+                print(
+                    f"{Fore.GREEN}Personality loaded successfully{Style.RESET_ALL}")
                 return personality
         except Exception as e:
             print(f"{Fore.RED}Error loading personality: {e}{Style.RESET_ALL}")
             raise ValueError(f"Failed to load personality: {e}")
 
     def load_tweet_storage(self) -> List[Dict]:
+        print(f"{Fore.BLUE}Loading tweet storage...{Style.RESET_ALL}")
         if os.path.exists(self.tweet_storage_filepath):
             try:
                 with open(self.tweet_storage_filepath, 'r', encoding='utf-8') as f:
                     tweets = json.load(f)
+                    print(
+                        f"{Fore.GREEN}Tweet storage loaded successfully{Style.RESET_ALL}")
                     return tweets
             except json.JSONDecodeError:
                 print(
@@ -85,10 +125,13 @@ class TweetGenerator:
         return []
 
     def save_tweet_storage(self):
+        print(f"{Fore.BLUE}Saving tweets to storage...{Style.RESET_ALL}")
         with open(self.tweet_storage_filepath, 'w', encoding='utf-8') as f:
             json.dump(self.tweet_storage, f, indent=4)
+        print(f"{Fore.GREEN}Tweets saved successfully{Style.RESET_ALL}")
 
     def is_similar_to_existing(self, new_tweet: str) -> bool:
+        print(f"{Fore.MAGENTA}Checking tweet similarity...{Style.RESET_ALL}")
         existing_tweets = [tweet['text'] for tweet in self.tweet_storage]
         if not existing_tweets:
             print(f"{Fore.YELLOW}No existing tweets to compare with{Style.RESET_ALL}")
@@ -113,9 +156,11 @@ class TweetGenerator:
             cosine_similarities) > 0 else 0
 
         is_similar = max_similarity >= self.similarity_threshold
+        print(f"{Fore.CYAN}Similarity check result: {is_similar}{Style.RESET_ALL}")
         return is_similar
 
     def configure_api(self):
+        print(f"{Fore.BLUE}Configuring API...{Style.RESET_ALL}")
         api_key = os.getenv('GOOGLE_API_KEY')
         if not api_key:
             print(
@@ -123,20 +168,26 @@ class TweetGenerator:
             raise ValueError(
                 "API key is required. Set GOOGLE_API_KEY in environment variables.")
         genai.configure(api_key=api_key)
+        print(f"{Fore.GREEN}API configured successfully{Style.RESET_ALL}")
 
     def get_phase_examples(self, phase: Optional[str]) -> List[str]:
+        print(f"{Fore.BLUE}Getting phase examples for: {phase}{Style.RESET_ALL}")
         if not phase:
             examples = self.personality.get('example_interactions', [])
         else:
             arc = self.personality.get('hidden_story_arc', {})
             phase_data = arc.get(phase, {})
             examples = phase_data.get('examples', [])
+        print(f"{Fore.GREEN}Retrieved {len(examples)} examples{Style.RESET_ALL}")
         return examples
 
     def generate_tweet(self, topic: Optional[str] = None, phase: Optional[str] = None) -> str:
+        print(
+            f"{Fore.BLUE}Generating tweet for topic: {topic}, phase: {phase}{Style.RESET_ALL}")
         has_intro = any(tweet.get('topic') ==
                         'introduction' for tweet in self.tweet_storage)
         if not has_intro:
+            print(f"{Fore.CYAN}Generating introduction tweet...{Style.RESET_ALL}")
             name = self.personality.get('name', 'Riley')
             description = self.personality.get('description', '')
 
@@ -164,12 +215,15 @@ class TweetGenerator:
                 self.tweet_storage.append(tweet_entry)
                 self.save_tweet_storage()
 
+                print(
+                    f"{Fore.GREEN}Introduction tweet generated successfully{Style.RESET_ALL}")
                 return intro_tweet
             except Exception as e:
                 print(
                     f"{Fore.RED}Error occurred while generating introduction tweet: {e}{Style.RESET_ALL}")
                 return "Error generating tweet"
         elif has_intro:
+            print(f"{Fore.CYAN}Generating regular tweet...{Style.RESET_ALL}")
             name = self.personality.get('name', 'Riley')
             description = self.personality.get('description', '')
             examples = self.get_phase_examples(phase)
@@ -195,6 +249,8 @@ class TweetGenerator:
 
             while attempt < max_attempts:
                 try:
+                    print(
+                        f"{Fore.MAGENTA}Attempt {attempt + 1} of {max_attempts}{Style.RESET_ALL}")
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     response = model.generate_content(full_prompt)
                     generated_tweet = response.candidates[0].content.parts[0].text.strip(
@@ -232,6 +288,7 @@ class TweetGenerator:
 
 
 if __name__ == "__main__":
+    print(f"{Fore.CYAN}Starting TweetGenerator test...{Style.RESET_ALL}")
     ai = TweetGenerator()
     test = ai.generate_tweet()
     print(test)
