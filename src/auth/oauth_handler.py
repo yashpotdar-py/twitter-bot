@@ -45,15 +45,12 @@ def get_twitter_verifier(auth_url):
         ).click()
         time.sleep(random.uniform(1, 5))
 
-        if "authenticate your account" in driver.page_source.lower():
-            # TODO Implemment logic to handle this case
-            pass 
-
         if "unusual login activity" in driver.page_source.lower():
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((
                     By.CSS_SELECTOR, "input[name='text']")
                 )).send_keys(TWITTER_EMAIL + Keys.RETURN)
+        
         time.sleep(random.uniform(1, 5))
 
         password_input = WebDriverWait(driver, 10).until(
