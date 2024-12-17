@@ -44,8 +44,8 @@ init()
 try:
     import google.generativeai as genai
 except ImportError:
-    print(f"{Fore.RED}Error: google-generativeai package is not installed. Please install it:")
-    print("pip install google-generativeai{Style.RESET_ALL}")
+    print(f"{Fore.RED}[!] Error: google-generativeai package is not installed. Please install it:")
+    print(f"{Fore.RED}[!] pip install google-generativeai{Style.RESET_ALL}")
     raise
 
 load_dotenv()
@@ -57,14 +57,14 @@ class TweetGenerator:
                  tweet_storage_filepath: str = 'src/ai/tweets.json',
                  max_tweet_length: int = 280,
                  similarity_threshold: float = 0.9):
-        print(f"{Fore.CYAN}Initializing TweetGenerator...{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Initializing TweetGenerator...{Style.RESET_ALL}")
         self.personality = self.load_personality(personality_filepath)
         self.tweet_storage_filepath = tweet_storage_filepath
         self.max_tweet_length = max_tweet_length
         self.similarity_threshold = similarity_threshold
         self.configure_api()
         self.tweet_storage = self.load_tweet_storage()
-        print(f"{Fore.GREEN}TweetGenerator initialized successfully{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[*] TweetGenerator initialized successfully{Style.RESET_ALL}")
         self.game_types = {
             "indie games": ["Stardew Valley", "Hollow Knight", "Undertale", "Hades", "Celeste"],
             "game development": ["Unity", "Unreal Engine", "Godot"],
@@ -95,46 +95,43 @@ class TweetGenerator:
         }
 
     def load_personality(self, filepath: str) -> Dict:
-        print(f"{Fore.BLUE}Loading personality from {filepath}...{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Loading personality from {filepath}...{Style.RESET_ALL}")
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 personality = json.load(f)
-                print(
-                    f"{Fore.GREEN}Personality loaded successfully{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[*] Personality loaded successfully{Style.RESET_ALL}")
                 return personality
         except Exception as e:
-            print(f"{Fore.RED}Error loading personality: {e}{Style.RESET_ALL}")
-            raise ValueError(f"Failed to load personality: {e}")
+            print(f"{Fore.RED}[!] Error loading personality: {e}{Style.RESET_ALL}")
+            raise ValueError(f"[!] Failed to load personality: {e}")
 
     def load_tweet_storage(self) -> List[Dict]:
-        print(f"{Fore.BLUE}Loading tweet storage...{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Loading tweet storage...{Style.RESET_ALL}")
         if os.path.exists(self.tweet_storage_filepath):
             try:
                 with open(self.tweet_storage_filepath, 'r', encoding='utf-8') as f:
                     tweets = json.load(f)
-                    print(
-                        f"{Fore.GREEN}Tweet storage loaded successfully{Style.RESET_ALL}")
+                    print(f"{Fore.GREEN}[*] Tweet storage loaded successfully{Style.RESET_ALL}")
                     return tweets
             except json.JSONDecodeError:
-                print(
-                    f"{Fore.YELLOW}Tweet storage file is empty or invalid{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}[!] Tweet storage file is empty or invalid{Style.RESET_ALL}")
                 print("-" * 80)
                 return []
-        print(f"{Fore.YELLOW}Tweet storage file does not exist, starting with empty storage{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}[!] Tweet storage file does not exist, starting with empty storage{Style.RESET_ALL}")
         print("-" * 80)
         return []
 
     def save_tweet_storage(self):
-        print(f"{Fore.BLUE}Saving tweets to storage...{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Saving tweets to storage...{Style.RESET_ALL}")
         with open(self.tweet_storage_filepath, 'w', encoding='utf-8') as f:
             json.dump(self.tweet_storage, f, indent=4)
-        print(f"{Fore.GREEN}Tweets saved successfully{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[*] Tweets saved successfully{Style.RESET_ALL}")
 
     def is_similar_to_existing(self, new_tweet: str) -> bool:
-        print(f"{Fore.MAGENTA}Checking tweet similarity...{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Checking tweet similarity...{Style.RESET_ALL}")
         existing_tweets = [tweet['text'] for tweet in self.tweet_storage]
         if not existing_tweets:
-            print(f"{Fore.YELLOW}No existing tweets to compare with{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}[!] No existing tweets to compare with{Style.RESET_ALL}")
             print("-" * 80)
             return False
 
@@ -156,38 +153,35 @@ class TweetGenerator:
             cosine_similarities) > 0 else 0
 
         is_similar = max_similarity >= self.similarity_threshold
-        print(f"{Fore.CYAN}Similarity check result: {is_similar}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[*] Similarity check result: {is_similar}{Style.RESET_ALL}")
         return is_similar
 
     def configure_api(self):
-        print(f"{Fore.BLUE}Configuring API...{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Configuring API...{Style.RESET_ALL}")
         api_key = os.getenv('GOOGLE_API_KEY')
         if not api_key:
-            print(
-                f"{Fore.RED}API key not found in environment variables{Style.RESET_ALL}")
-            raise ValueError(
-                "API key is required. Set GOOGLE_API_KEY in environment variables.")
+            print(f"{Fore.RED}[!] API key not found in environment variables{Style.RESET_ALL}")
+            raise ValueError("[!] API key is required. Set GOOGLE_API_KEY in environment variables.")
         genai.configure(api_key=api_key)
-        print(f"{Fore.GREEN}API configured successfully{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[*] API configured successfully{Style.RESET_ALL}")
 
     def get_phase_examples(self, phase: Optional[str]) -> List[str]:
-        print(f"{Fore.BLUE}Getting phase examples for: {phase}{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Getting phase examples for: {phase}{Style.RESET_ALL}")
         if not phase:
             examples = self.personality.get('example_interactions', [])
         else:
             arc = self.personality.get('hidden_story_arc', {})
             phase_data = arc.get(phase, {})
             examples = phase_data.get('examples', [])
-        print(f"{Fore.GREEN}Retrieved {len(examples)} examples{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[*] Retrieved {len(examples)} examples{Style.RESET_ALL}")
         return examples
 
     def generate_tweet(self, topic: Optional[str] = None, phase: Optional[str] = None) -> str:
-        print(
-            f"{Fore.BLUE}Generating tweet for topic: {topic}, phase: {phase}{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Generating tweet for topic: {topic}, phase: {phase}{Style.RESET_ALL}")
         has_intro = any(tweet.get('topic') ==
                         'introduction' for tweet in self.tweet_storage)
         if not has_intro:
-            print(f"{Fore.CYAN}Generating introduction tweet...{Style.RESET_ALL}")
+            print(f"{Fore.BLUE}[+] Generating introduction tweet...{Style.RESET_ALL}")
             name = self.personality.get('name', 'Riley')
             description = self.personality.get('description', '')
 
@@ -200,8 +194,7 @@ class TweetGenerator:
             try:
                 model = genai.GenerativeModel('gemini-1.5-flash')
                 response = model.generate_content(intro_prompt)
-                intro_tweet = response.candidates[0].content.parts[0].text.strip(
-                )
+                intro_tweet = response.candidates[0].content.parts[0].text.strip()
 
                 if len(intro_tweet) > self.max_tweet_length:
                     intro_tweet = intro_tweet[:self.max_tweet_length]
@@ -215,15 +208,13 @@ class TweetGenerator:
                 self.tweet_storage.append(tweet_entry)
                 self.save_tweet_storage()
 
-                print(
-                    f"{Fore.GREEN}Introduction tweet generated successfully{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}[*] Introduction tweet generated successfully{Style.RESET_ALL}")
                 return intro_tweet
             except Exception as e:
-                print(
-                    f"{Fore.RED}Error occurred while generating introduction tweet: {e}{Style.RESET_ALL}")
-                return "Error generating tweet"
+                print(f"{Fore.RED}[!] Error occurred while generating introduction tweet: {e}{Style.RESET_ALL}")
+                return "[!] Error generating tweet"
         elif has_intro:
-            print(f"{Fore.CYAN}Generating regular tweet...{Style.RESET_ALL}")
+            print(f"{Fore.BLUE}[+] Generating regular tweet...{Style.RESET_ALL}")
             name = self.personality.get('name', 'Riley')
             description = self.personality.get('description', '')
             examples = self.get_phase_examples(phase)
@@ -249,12 +240,10 @@ class TweetGenerator:
 
             while attempt < max_attempts:
                 try:
-                    print(
-                        f"{Fore.MAGENTA}Attempt {attempt + 1} of {max_attempts}{Style.RESET_ALL}")
+                    print(f"{Fore.BLUE}[+] Attempt {attempt + 1} of {max_attempts}{Style.RESET_ALL}")
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     response = model.generate_content(full_prompt)
-                    generated_tweet = response.candidates[0].content.parts[0].text.strip(
-                    )
+                    generated_tweet = response.candidates[0].content.parts[0].text.strip()
 
                     if len(generated_tweet) > self.max_tweet_length:
                         generated_tweet = generated_tweet[:self.max_tweet_length]
@@ -268,27 +257,24 @@ class TweetGenerator:
                         }
                         self.tweet_storage.append(tweet_entry)
                         self.save_tweet_storage()
-                        print(f"{Fore.GREEN}Generated tweet:{Style.RESET_ALL}")
+                        print(f"{Fore.GREEN}[*] Generated tweet:{Style.RESET_ALL}")
                         print(generated_tweet)
                         print("-" * 80)
                         return generated_tweet
 
                     attempt += 1
-                    print(
-                        f"{Fore.YELLOW}Tweet was too similar, trying again...{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}[!] Tweet was too similar, trying again...{Style.RESET_ALL}")
 
                 except Exception as e:
-                    print(
-                        f"{Fore.RED}Error occurred while generating tweet: {e}{Style.RESET_ALL}")
-                    return f"Error generating tweet: {e}"
+                    print(f"{Fore.RED}[!] Error occurred while generating tweet: {e}{Style.RESET_ALL}")
+                    return f"[!] Error generating tweet: {e}"
 
-            print(
-                f"{Fore.RED}Failed to generate a unique tweet after {max_attempts} attempts{Style.RESET_ALL}")
-            return "Failed to generate a unique tweet. Please try again."
+            print(f"{Fore.RED}[!] Failed to generate a unique tweet after {max_attempts} attempts{Style.RESET_ALL}")
+            return "[!] Failed to generate a unique tweet. Please try again."
 
 
 if __name__ == "__main__":
-    print(f"{Fore.CYAN}Starting TweetGenerator test...{Style.RESET_ALL}")
+    print(f"{Fore.BLUE}[+] Starting TweetGenerator test...{Style.RESET_ALL}")
     ai = TweetGenerator()
     test = ai.generate_tweet()
     print(test)

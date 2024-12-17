@@ -19,9 +19,9 @@ def post_tweet(access_token, access_token_secret, consumer_key, consumer_secret,
     Raises:
         Exception: If the API request fails or returns an error status code
     """
-    print(f"{Fore.CYAN}Preparing tweet payload...{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}[+] Preparing tweet payload...{Style.RESET_ALL}")
     payload = {"text": tweet_text}
-    print(f"{Fore.YELLOW}Initializing OAuth session...{Style.RESET_ALL}")
+    print(f"{Fore.BLUE}[*] Initializing OAuth session...{Style.RESET_ALL}")
     oauth = OAuth1Session(
         consumer_key,
         client_secret=consumer_secret,
@@ -29,11 +29,11 @@ def post_tweet(access_token, access_token_secret, consumer_key, consumer_secret,
         resource_owner_secret=access_token_secret,
     )
 
-    print(f"{Fore.BLUE}Posting tweet to Twitter API...{Style.RESET_ALL}")
+    print(f"{Fore.BLUE}[*] Posting tweet to Twitter API...{Style.RESET_ALL}")
     response = oauth.post("https://api.twitter.com/2/tweets", json=payload)
     if response.status_code != 201:
-        print(f"{Fore.RED}Error occurred while posting tweet!{Style.RESET_ALL}")
+        print(f"{Fore.RED}[!] Error occurred while posting tweet!{Style.RESET_ALL}")
         raise Exception(
             f"Request returned an error: {response.status_code} {response.text}")
-    print(f"{Fore.GREEN}Tweet posted successfully!{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}[+] Tweet posted successfully!{Style.RESET_ALL}")
     return response.json()

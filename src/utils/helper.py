@@ -28,11 +28,11 @@ def get_env_var(var_name):
     Example:
         >>> api_key = get_env_var('API_KEY')
     """
-    print(f"{Fore.CYAN}Attempting to get environment variable: {var_name}{Fore.RESET}")
+    print(f"{Fore.BLUE}[*] Attempting to get environment variable: {var_name}{Fore.RESET}")
     value = os.getenv(var_name)
     if value is None:
         error_msg = f"Environment variable {var_name} is not set."
-        print(f"{Fore.RED}Error: {error_msg}{Fore.RESET}")
+        print(f"{Fore.RED}[!] Error: {error_msg}{Fore.RESET}")
         raise ValueError(error_msg)
-    print(f"{Fore.GREEN}Successfully retrieved environment variable: {var_name}{Fore.RESET}")
+    print(f"{Fore.GREEN}[+] Successfully retrieved environment variable: {var_name}{Fore.RESET}")
     return value

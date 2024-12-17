@@ -60,12 +60,12 @@ def get_twitter_verifier(auth_url, headless=True):
     Raises:
         Exception: If any step in the verification process fails
     """
-    print(f"{Fore.CYAN}Starting Twitter verification process...{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}[*] Starting Twitter verification process...{Style.RESET_ALL}")
     driver = setup_selenium(headless=headless)
 
     try:
         driver.get(auth_url)
-        print(f"{Fore.GREEN}Navigated to authorization URL{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[*] Navigated to authorization URL{Style.RESET_ALL}")
         time.sleep(random.uniform(1, 5))
 
         sign_in_button = WebDriverWait(driver, 10).until(
@@ -73,7 +73,7 @@ def get_twitter_verifier(auth_url, headless=True):
                 By.CSS_SELECTOR, "input[value='Sign In']"
             ))
         )
-        print(f"{Fore.YELLOW}Found Sign In button{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Found Sign In button, clicking...{Style.RESET_ALL}")
         time.sleep(random.uniform(1, 5))
         sign_in_button.click()
         time.sleep(random.uniform(1, 5))
@@ -82,7 +82,7 @@ def get_twitter_verifier(auth_url, headless=True):
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "input[name='text']"))
         )
-        print(f"{Fore.BLUE}Entering username{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[+] Entering username data{Style.RESET_ALL}")
         time.sleep(random.uniform(1, 5))
         username_input.send_keys(TWITTER_USERNAME)
         time.sleep(random.uniform(1, 5))
@@ -91,12 +91,13 @@ def get_twitter_verifier(auth_url, headless=True):
             EC.element_to_be_clickable(
                 (By.XPATH, "//span[text()='Next']/ancestor::button"))
         ).click()
-        print(f"{Fore.MAGENTA}Clicked Next button{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Clicking Next button{Style.RESET_ALL}")
         time.sleep(random.uniform(1, 5))
 
         if "unusual login activity" in driver.page_source.lower():
             print(
-                f"{Fore.RED}Detected unusual login activity, entering email{Style.RESET_ALL}")
+                f"{Fore.YELLOW}[!] Detected unusual login activity{Style.RESET_ALL}")
+            print(f"{Fore.GREEN}[+] Entering email verification{Style.RESET_ALL}")
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((
                     By.CSS_SELECTOR, "input[name='text']")
@@ -108,7 +109,7 @@ def get_twitter_verifier(auth_url, headless=True):
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "input[name='password']"))
         )
-        print(f"{Fore.GREEN}Entering password{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}[+] Entering password data{Style.RESET_ALL}")
         time.sleep(random.uniform(1, 5))
         password_input.send_keys(TWITTER_PASSWORD)
         time.sleep(random.uniform(1, 5))
@@ -119,27 +120,27 @@ def get_twitter_verifier(auth_url, headless=True):
                  "button[data-testid='LoginForm_Login_Button']")
             )
         ).click()
-        print(f"{Fore.YELLOW}Clicked Login button{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Clicking Login button{Style.RESET_ALL}")
         time.sleep(random.uniform(1, 5))
 
         authorize_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "input#allow"))
         )
-        print(f"{Fore.BLUE}Clicking Authorize button{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}[+] Clicking Authorize button{Style.RESET_ALL}")
         authorize_button.click()
         time.sleep(random.uniform(1, 5))
 
         verifier_code = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//code"))
         ).text
-        print(f"{Fore.CYAN}Successfully retrieved verifier code{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[*] Successfully retrieved verifier code{Style.RESET_ALL}")
         return verifier_code
     except Exception as e:
-        print(f"{Fore.RED}Error getting Twitter verifier code: {e}{Style.RESET_ALL}")
+        print(f"{Fore.RED}[!] Error getting Twitter verifier code: {e}{Style.RESET_ALL}")
         return None
 
     finally:
-        print(f"{Fore.MAGENTA}Closing browser session{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[*] Closing browser session{Style.RESET_ALL}")
         driver.quit()
 
 
@@ -159,25 +160,25 @@ def fetch_access_token(headless=True):
     Raises:
         ValueError: If the verifier code cannot be obtained
     """
-    print(f"{Fore.CYAN}Starting access token fetch process{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}[*] Starting access token fetch process{Style.RESET_ALL}")
     request_token_url = "https://api.twitter.com/oauth/request_token?oauth_callback=oob&x_auth_access_type=write"
     oauth = OAuth1Session(CONSUMER_KEY, client_secret=CONSUMER_SECRET)
 
     fetch_response = oauth.fetch_request_token(request_token_url)
-    print(f"{Fore.GREEN}Successfully fetched request token{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}[*] Successfully fetched request token{Style.RESET_ALL}")
     resource_owner_key = fetch_response.get("oauth_token")
     resource_owner_secret = fetch_response.get("oauth_token_secret")
 
     base_authorization_url = "https://api.twitter.com/oauth/authorize"
     authorization_url = oauth.authorization_url(base_authorization_url)
-    print(f"{Fore.YELLOW}Generated authorization URL{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}[*] Generated authorization URL{Style.RESET_ALL}")
 
     verifier = get_twitter_verifier(authorization_url, headless=headless)
     if not verifier:
-        print(f"{Fore.RED}Failed to retrieve verifier code{Style.RESET_ALL}")
+        print(f"{Fore.RED}[!] Failed to retrieve verifier code{Style.RESET_ALL}")
         raise ValueError("Failed to retrieve verifier code.")
 
-    print(f"{Fore.BLUE}Exchanging verifier for access token{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}[*] Exchanging verifier for access token{Style.RESET_ALL}")
     access_token_url = "https://api.twitter.com/oauth/access_token"
     oauth = OAuth1Session(
         CONSUMER_KEY,
@@ -188,5 +189,5 @@ def fetch_access_token(headless=True):
     )
 
     oauth_tokens = oauth.fetch_access_token(access_token_url)
-    print(f"{Fore.GREEN}Successfully obtained access tokens{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}[*] Successfully obtained access tokens{Style.RESET_ALL}")
     return oauth_tokens["oauth_token"], oauth_tokens["oauth_token_secret"]
