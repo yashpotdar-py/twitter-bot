@@ -34,7 +34,7 @@ Before running the bot, ensure you have the following:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/twitter-bot.git
+   git clone https://github.com/yashpotdar-py/twitter-bot.git
    cd twitter-bot
    ```
 
