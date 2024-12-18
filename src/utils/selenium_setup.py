@@ -1,8 +1,6 @@
 import os
 import sys
 from selenium import webdriver
-from selenium_stealth import stealth
-from fake_useragent import UserAgent
 from src.bot_logger.logger import Logger
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -17,8 +15,6 @@ logger = Logger(__name__)
 logger.info("Initiating Selenium WebDriver setup process...")
 
 options = Options()
-ua = UserAgent()
-user_agent = ua.random
 
 
 def setup_selenium(headless=True):
@@ -45,7 +41,6 @@ def setup_selenium(headless=True):
         chrome_options.add_argument(
             '--disable-blink-features=AutomationControlled')
         chrome_options.add_argument("--start-maximized")
-        options.add_argument(f'--user-agent={user_agent}')
         if headless:
             logger.info(
                 "Enabling headless mode for Chrome WebDriver")
