@@ -16,9 +16,13 @@ setup(
 
     # Dependencies
     install_requires=[
-        'colorama>=0.4.4',
-        'requests>=2.25.1',
-        # Add other dependencies from your requirements.txt
+        "selenium"
+        "requests"
+        "requests_oauthlib"
+        "python-dotenv"
+        "webdriver-manager"
+        "google-generativeai"
+        "scikit-learn"
     ],
 
     # Optional metadata

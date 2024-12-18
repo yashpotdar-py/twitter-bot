@@ -2,3 +2,6 @@ selenium
 requests
 requests_oauthlib
 python-dotenv
+webdriver-manager
+google-generativeai
+scikit-learn

@@ -46,13 +46,14 @@ class Logger:
         file_handler = RotatingFileHandler(
             log_file_path,
             maxBytes=max_log_size,
-            backupCount=backup_count
+            backupCount=backup_count,
+            encoding='utf-8'
         )
         file_handler.setFormatter(file_formatter)
         self.logger.addHandler(file_handler)
 
         if console_enabled:
-            console_handler = logging.StreamHandler(codecs.getwriter('utf-8')(sys.stdout.buffer))
+            console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setFormatter(console_formatter)
             self.logger.addHandler(console_handler)
 
