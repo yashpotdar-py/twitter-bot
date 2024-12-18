@@ -7,12 +7,22 @@ It performs the following steps:
 4. Generates tweet content based on specified phase and topic
 5. Posts the generated tweet to Twitter
 """
-
+import os
+import sys
+import random
 from src.utils.helper import get_env_var
+from src.bot_logger.logger import Logger
 from src.twitter.post_tweet import post_tweet
 from src.auth.oauth_handler import fetch_access_token
 from src.ai.tweet_generator import TweetGenerator
-from colorama import Fore, Style
+
+project_root = os.path.abspath(os.path.join(
+    os.path.dirname(__file__)))
+sys.path.insert(0, project_root)
+
+
+logger = Logger("app")
+logger.info("Starting tweet generation application")
 
 
 def main(debug=False):
@@ -24,21 +34,56 @@ def main(debug=False):
         Exception: Any error that occurs during the process will be caught and displayed
     """
     try:
-        print(f"{Fore.CYAN}[*] Fetching access tokens...{Style.RESET_ALL}")
+        logger.info("Initiating OAuth authentication process for Twitter API")
         headless = not debug
         access_token, access_token_secret = fetch_access_token(
             headless=headless)
-        print(f"{Fore.GREEN}[+] Getting environment variables...{Style.RESET_ALL}")
+        logger.success("Successfully obtained OAuth access tokens")
+
+        logger.info("Retrieving API credentials from environment variables")
         consumer_key = get_env_var("CONSUMER_KEY")
         consumer_secret = get_env_var("CONSUMER_SECRET")
+        logger.success("API credentials successfully loaded")
 
-        print(f"{Fore.YELLOW}[*] Initializing tweet generator...{Style.RESET_ALL}")
+        logger.info("Initializing AI-powered tweet generation system")
         tweet_generator = TweetGenerator()
-        print(f"{Fore.MAGENTA}[*] Generating tweet content...{Style.RESET_ALL}")
-        tweet_text = tweet_generator.generate_tweet(
-            phase="phase_2", topic="action adventure")
 
-        print(f"{Fore.BLUE}[*] Posting tweet to Twitter...{Style.RESET_ALL}")
+        logger.info(
+            "Beginning tweet content generation process for phase_2 with action adventure topic")
+        topics = ["open-world RPG",
+                  "sandbox game",
+                  "action-adventure",
+                  "story-driven narrative game",
+                  "survival game",
+                  "roguelike dungeon crawler",
+                  "puzzle-platformer",
+                  "simulation/management game",
+                  "quirky indie game with a deep meaning",
+                  "retro 8-bit adventure",
+                  "cozy farming sim",
+                  "time-loop mystery game",
+                  "social deduction multiplayer",
+                  "dark souls-like challenge",
+                  "post-apocalyptic survival",
+                  "whimsical cooking sim",
+                  "narrative-driven walking simulator",
+                  "satirical life sim",
+                  "cyberpunk exploration game",
+                  "space-travel sandbox",
+                  "unexpectedly emotional visual novel",
+                  "chaotic party game",
+                  "episodic adventure series",
+                  "absurd physics sandbox",
+                  "comedic point-and-click adventure"
+                  ]
+        phases = ["phase_1", "phase_2", "phase_3", "phase_4", "phase_5"]
+        tweet_topic = random.choice(topics)
+        tweet_phase = random.choice(phases)
+        tweet_text = tweet_generator.generate_tweet(
+            phase=tweet_phase, topic=tweet_topic)
+        logger.success("Tweet content successfully generated")
+
+        logger.info("Initiating Twitter API request to post tweet")
         response = post_tweet(
             access_token,
             access_token_secret,
@@ -46,10 +91,13 @@ def main(debug=False):
             consumer_secret,
             tweet_text
         )
-        print(f"{Fore.GREEN}[+] Response received: {response}{Style.RESET_ALL}")
+        logger.success(f"Tweet successfully posted. API Response: {response}")
+        logger.info(
+            "Tweet generation and posting process completed successfully")
 
     except Exception as e:
-        print(f"{Fore.RED}[!] Error: {e}{Style.RESET_ALL}")
+        logger.error(
+            f"Critical error encountered during tweet generation process: {str(e)}")
 
 
 if __name__ == "__main__":

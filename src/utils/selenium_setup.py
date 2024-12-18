@@ -1,12 +1,20 @@
+import os
+import sys
 from selenium import webdriver
 from selenium_stealth import stealth
+from fake_useragent import UserAgent
+from src.bot_logger.logger import Logger
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from fake_useragent import UserAgent
-from colorama import Fore, Style, init
 
-init()
+project_root = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, project_root)
+
+
+logger = Logger(__name__)
+logger.info("Initiating Selenium WebDriver setup process...")
 
 options = Options()
 ua = UserAgent()
@@ -31,23 +39,24 @@ def setup_selenium(headless=True):
         - Automatic ChromeDriver installation
     """
     try:
-        print(
-            f"{Fore.CYAN}[*] Initializing Chrome options...{Style.RESET_ALL}")
+        logger.info(
+            "Initializing Chrome WebDriver configuration parameters...")
         chrome_options = Options()
         chrome_options.add_argument(
             '--disable-blink-features=AutomationControlled')
         chrome_options.add_argument("--start-maximized")
         options.add_argument(f'--user-agent={user_agent}')
         if headless:
-            print(
-                f"{Fore.YELLOW}[*] Running in headless mode{Style.RESET_ALL}")
+            logger.info(
+                "Enabling headless mode for Chrome WebDriver")
             chrome_options.add_argument("--headless")
-        print(f"{Fore.GREEN}[*] Setting up Chrome driver...{Style.RESET_ALL}")
+        logger.info("Proceeding with Chrome WebDriver initialization...")
         driver = webdriver.Chrome(service=Service(
             ChromeDriverManager().install()), options=chrome_options)
-        print(
-            f"{Fore.BLUE}[+] Selenium setup completed successfully{Style.RESET_ALL}")
+        logger.success(
+            "Chrome WebDriver initialization completed successfully")
         return driver
     except Exception as e:
-        print(f"{Fore.RED}[!] Error setting up Selenium: {e}{Style.RESET_ALL}")
+        logger.critical(
+            f"Critical error encountered during WebDriver initialization: {e}")
         return None

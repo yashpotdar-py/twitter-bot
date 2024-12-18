@@ -5,10 +5,17 @@ with proper error handling and colored console output.
 """
 
 import os
+import sys
 from dotenv import load_dotenv
-from colorama import init, Fore
+from src.bot_logger.logger import Logger
 
-init()
+project_root = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, project_root)
+
+
+logger = Logger(__name__)
+logger.info("Initializing helper module")
 
 load_dotenv()
 
@@ -28,11 +35,12 @@ def get_env_var(var_name):
     Example:
         >>> api_key = get_env_var('API_KEY')
     """
-    print(f"{Fore.BLUE}[*] Attempting to get environment variable: {var_name}{Fore.RESET}")
+    logger.info(f"Initiating retrieval of environment variable: {var_name}")
     value = os.getenv(var_name)
     if value is None:
-        error_msg = f"Environment variable {var_name} is not set."
-        print(f"{Fore.RED}[!] Error: {error_msg}{Fore.RESET}")
+        error_msg = f"Environment variable {var_name} is not configured in the system."
+        logger.error(f"ERROR: {error_msg}")
         raise ValueError(error_msg)
-    print(f"{Fore.GREEN}[+] Successfully retrieved environment variable: {var_name}{Fore.RESET}")
+    logger.success(
+        f"Environment variable {var_name} has been successfully retrieved")
     return value
