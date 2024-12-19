@@ -1,11 +1,12 @@
 import os
 import sys
+
 from selenium import webdriver
-from selenium_stealth import stealth
-from fake_useragent import UserAgent
-from src.bot_logger.logger import Logger
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+
+from fake_useragent import UserAgent
+from src.bot_logger.logger import Logger
 from webdriver_manager.chrome import ChromeDriverManager
 
 project_root = os.path.abspath(os.path.join(
