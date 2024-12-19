@@ -1,20 +1,17 @@
 from setuptools import setup, find_packages
 
 setup(
-    # Metadata about your project
-    name="twitter-bot",  # The name of your project
-    version="0.1.0",  # Semantic versioning
+    name="twitter-bot",
+    version="0.1.0",
     author="Yash Potdar",
     author_email="yashyogeshpotdar7@gmail.com",
     description="A Twitter bot for automated interactions",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
 
-    # Project structure and packages
-    packages=find_packages(where='src'),  # Important: specify source directory
-    package_dir={'': 'src'},  # Tell setuptools packages are under src
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
 
-    # Dependencies
     install_requires=[
         "selenium"
         "requests"
@@ -25,7 +22,6 @@ setup(
         "scikit-learn"
     ],
 
-    # Optional metadata
     url="https://github.com/yashpotdar-py/twitter-bot",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -35,13 +31,11 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
 
-    # Entry points if you want to create command-line scripts
     entry_points={
         'console_scripts': [
-            'twitter-bot=src.main:main',  # Example of creating a CLI entry point
+            'twitter-bot=src.main:main',
         ],
     },
 
-    # Python version requirements
     python_requires='>=3.8',
 )
